@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News - Subscription Ghost</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/news.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="home.html" class="logo">Subscription Ghost</a>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="bills.html">Bills</a></li>
+            <li><a href="news.html" class="active">Weekly News</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+        <div class="user-menu">
+            <span class="user-name" id="headerUserName">Loading...</span>
+            <button class="btn-logout">Logout</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h1>Market Watch</h1>
+            <p class="subtitle">Latest AI-curated subscription news.</p>
+        </div>
+        <div class="card news-card">
+            <div id="news-feed">
+                <p>Loading latest market insights...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="JS/news.js"></script>
+</body>
+</html>

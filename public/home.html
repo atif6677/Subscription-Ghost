@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subscription Ghost</title>
+    <title>Dashboard - Subscription Ghost</title>
     <link rel="stylesheet" href="CSS/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="navbar">
-        <a href="#" class="logo">Subscription Ghost</a>
+        <a href="home.html" class="logo">Subscription Ghost</a>
         <ul class="nav-links">
-            <li><a href="#" id="nav-home">Home</a></li>
-            <li><a href="#" id="nav-bills">Bills</a></li>
-            <li><a href="#" id="nav-news">Weekly News</a></li>
-            <li><a href="#" id="nav-about">About</a></li>
+            <li><a href="home.html" class="active">Home</a></li>
+            <li><a href="bills.html">Bills</a></li>
+            <li><a href="news.html">Weekly News</a></li>
+            <li><a href="about.html">About</a></li>
         </ul>
         <div class="user-menu">
             <span class="user-name" id="headerUserName">Loading...</span>
@@ -26,83 +24,23 @@
     </nav>
 
     <div class="main-content">
-        <div id="page-home" class="page-section">
-            <div class="header-section">
-                <h1>Dashboard</h1>
-                <p class="subtitle">Manage and track your services.</p>
-            </div>
-
-            <div class="card search-card">
-                <h2>Add New Subscription</h2>
-                <div class="input-group">
-                    <input type="text" id="searchInput" placeholder="Enter Service Name (e.g., Netflix)">
-                    <button class="primary-btn">Search & Add</button>
-                </div>
-                <p id="status" class="status-text"></p>
-            </div>
-
-            <div class="list-section">
-                <h2>All Subscriptions</h2>
-                <div id="full-list" class="sub-list"></div>
-            </div>
+        <div class="header-section">
+            <h1>Dashboard</h1>
+            <p class="subtitle">Manage and track your services.</p>
         </div>
 
-        <div id="page-bills" class="page-section" style="display:none;">
-            <div class="header-section">
-                <h1>Billing Overview</h1>
-                <p class="subtitle">Analyze your spending habits.</p>
+        <div class="card search-card">
+            <h2>Add New Subscription</h2>
+            <div class="input-group">
+                <input type="text" id="searchInput" placeholder="Enter Service Name (e.g., Netflix)">
+                <button class="primary-btn">Search & Add</button>
             </div>
-
-            <div class="stats-grid">
-                <div class="card stat-card">
-                    <h3>Current Monthly Bill</h3>
-                    <h1 id="totalCost" class="highlight-number">0 INR</h1>
-                    <p class="meta-text">Excluding free trials</p>
-                    <div class="chart-container">
-                        <canvas id="spendChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="card stat-card">
-                    <h3>Spending History</h3>
-                    <p class="meta-text">Last 3 Months</p>
-                    <div id="history-list" class="history-list"></div>
-                </div>
-            </div>
-
-            <div class="list-section">
-                <h2>Active Paid Services</h2>
-                <div id="paid-list" class="sub-list"></div>
-            </div>
+            <p id="status" class="status-text"></p>
         </div>
 
-        <div id="page-news" class="page-section" style="display:none;">
-            <div class="header-section">
-                <h1>Market Watch</h1>
-                <p class="subtitle">Latest AI-curated subscription news.</p>
-            </div>
-            <div class="card news-card">
-                <div id="news-feed">
-                    <p>Loading latest market insights...</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="page-about" class="page-section" style="display:none;">
-            <div class="card about-card">
-                <h1>About Subscription Ghost</h1>
-                <p>Subscription Ghost is a professional financial tool designed to alleviate subscription fatigue. By centralizing your recurring expenses, we help you maintain control over your digital financial footprint.</p>
-                
-                <h3>Core Functionality</h3>
-                <ul class="feature-list">
-                    <li><strong>Intelligent Tracking:</strong> Leverages Google Gemini AI to retrieve real-time pricing and trial duration data.</li>
-                    <li><strong>Automated Alerts:</strong> Proactive email notifications sent 3 days prior to trial expiration.</li>
-                    <li><strong>Market Intelligence:</strong> Weekly curated reports on price changes and new offers.</li>
-                    <li><strong>Financial Analytics:</strong> comprehensive breakdown of monthly obligations and historical spending.</li>
-                </ul>
-                <hr>
-                <p class="version">Capstone Project v1.0.0 | Tech Stack: Node.js, Express, MongoDB, Google Gemini AI</p>
-            </div>
+        <div class="list-section">
+            <h2>All Subscriptions</h2>
+            <div id="full-list" class="sub-list"></div>
         </div>
     </div>
 
@@ -118,7 +56,7 @@
                 <input type="number" id="modalPrice">
             </div>
             <div class="modal-input-group">
-                <label>Trial Days (0 if no trial)</label>
+                <label>Trial Days</label>
                 <input type="number" id="modalTrial" placeholder="0">
             </div>
             <div class="modal-input-group">

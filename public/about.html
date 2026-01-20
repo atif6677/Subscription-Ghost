@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Subscription Ghost</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/about.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="home.html" class="logo">Subscription Ghost</a>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="bills.html">Bills</a></li>
+            <li><a href="news.html">Weekly News</a></li>
+            <li><a href="about.html" class="active">About</a></li>
+        </ul>
+        <div class="user-menu">
+            <span class="user-name" id="headerUserName">...</span>
+            <button class="btn-logout">Logout</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="about-hero">
+            <div class="hero-icon">👻</div>
+            <h1>Subscription Ghost</h1>
+            <p class="hero-subtitle">Take back control of your digital financial footprint.</p>
+        </div>
+
+        <div class="card about-card">
+            <h2>Why We Built This</h2>
+            <p>Subscription fatigue is real. Companies rely on you forgetting to cancel free trials or ignoring small monthly price hikes. <strong>Subscription Ghost</strong> is your personal financial firewall.</p>
+        </div>
+
+        <h2 class="section-title">Core Superpowers</h2>
+        <div class="features-grid">
+            <div class="feature-box">
+                <div class="f-icon">🤖</div>
+                <h3>AI Powered</h3>
+                <p>Google Gemini AI automatically fetches real-time pricing and trial durations.</p>
+            </div>
+            <div class="feature-box">
+                <div class="f-icon">🔔</div>
+                <h3>Smart Alerts</h3>
+                <p>Get notified via email 3 days before any trial ends.</p>
+            </div>
+            <div class="feature-box">
+                <div class="f-icon">📊</div>
+                <h3>Deep Analytics</h3>
+                <p>Visualize spending habits with interactive charts.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple Inline Script for About Page is fine
+        const user = JSON.parse(localStorage.getItem('user'));
+        if(user) document.getElementById('headerUserName').innerText = user.name;
+        document.querySelector('.btn-logout').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+</html>
