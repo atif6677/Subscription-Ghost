@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Subscription Ghost</title>
+    <link rel="stylesheet" href="CSS/login-signup.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome Back</h2>
+        <div id="error-message"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+        <p style="margin-top: 10px;">
+            <a href="forgot-password.html" style="font-size: 0.9rem; color: #888;">Forgot Password?</a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="JS/login.js"></script>
+</body>
+</html>
