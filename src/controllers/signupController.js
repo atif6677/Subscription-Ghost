@@ -5,14 +5,19 @@ const AppError = require('../utils/appError');
 
 const saltRounds = 10; 
 
-// CHANGED: Use 'exports.addUserSignup' to match Expense Tracker style
+
 exports.addUserSignup = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
     
     if (!name || !email || !password) {
         throw new AppError("All fields are required", 400);
     }
+
+    if (password.length < 6) {
+        throw new AppError("Password must be at least 6 characters long", 400);
+    }
     
+    // ... existing code (check user exists, hash password, etc.)
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         throw new AppError("User already exists", 409);

@@ -11,7 +11,7 @@ if(signupForm) {
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('error-message');
 
-        // Clear previous error
+       
         if(errorDiv) errorDiv.style.display = 'none';
 
         try {

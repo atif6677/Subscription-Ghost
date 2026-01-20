@@ -1,30 +1,7 @@
 const cron = require('node-cron');
-const brevo = require('@getbrevo/brevo');
-const User = require('../models/signupModel'); 
+const User = require('../models/signupModel');
 const News = require('../models/newsModel'); 
-
-const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(
-    brevo.TransactionalEmailsApiApiKeys.apiKey,
-    process.env.BREVO_API_KEY
-);
-
-const sendWeeklyEmail = async (user, newsContent) => {
-    const sendSmtpEmail = new brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = "📅 Subscription Ghost: Weekly Market Watch";
-    sendSmtpEmail.htmlContent = `
-        <h2>Weekly Subscription News</h2>
-        <p>Hi ${user.name}, here is what's happening in the subscription world:</p>
-        <hr>
-        ${newsContent}
-        <hr>
-        <p><a href="http://localhost:3000/login.html">Login to your dashboard</a></p>
-    `;
-    sendSmtpEmail.sender = { name: "Subscription Ghost", email: process.env.EMAIL_USER || "noreply@subscriptionghost.com" };
-    sendSmtpEmail.to = [{ email: user.email, name: user.name }];
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
-};
+const { sendEmail } = require('../services/emailService'); // ✅ Import Service
 
 const startWeeklyReport = () => {
   // Run every Monday at 09:00 AM
@@ -41,7 +18,21 @@ const startWeeklyReport = () => {
         // 3. Send email to each user
         for (const user of users) {
             console.log(`Sending report to ${user.email}...`);
-            await sendWeeklyEmail(user, newsContent);
+            
+            // ✅ Use the new Service
+            await sendEmail({
+                toEmail: user.email,
+                toName: user.name,
+                subject: "📅 Subscription Ghost: Weekly Market Watch",
+                htmlContent: `
+                    <h2>Weekly Subscription News</h2>
+                    <p>Hi ${user.name}, here is what's happening in the subscription world:</p>
+                    <hr>
+                    ${newsContent}
+                    <hr>
+                    <p><a href="http://localhost:3000/login.html">Login to your dashboard</a></p>
+                `
+            });
         }
         console.log("✅ Weekly reports sent.");
 
