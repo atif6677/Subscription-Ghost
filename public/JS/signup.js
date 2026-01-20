@@ -11,21 +11,20 @@ if(signupForm) {
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('error-message');
 
-        // Clear previous errors
+        // Clear previous error
         if(errorDiv) errorDiv.style.display = 'none';
 
         try {
-            // matches POST /signup in routes/signupRoute.js
             const response = await axios.post('/signup', { name, email, password });
             
             if (response.status === 201) {
-                alert('Account created! Please login.');
+                alert('Account created successfully! Please login.');
                 window.location.href = '/login.html';
             }
 
         } catch (err) {
             console.error(err);
-            const msg = err.response?.data?.message || 'Signup failed';
+            const msg = err.response?.data?.message || err.response?.data?.error || 'Signup failed';
             
             if (errorDiv) {
                 errorDiv.innerText = msg;

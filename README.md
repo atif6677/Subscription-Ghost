@@ -41,10 +41,3 @@ A smart backend application that helps users track their SaaS subscriptions (Net
     ```bash
     npm run dev
     ```
-
-## 🔄 Automation (Render Deployment)
-
-To keep the app alive and running jobs on the Free Tier:
-1.  **Job 1 (Keep-Alive):** Ping `/` every 14 mins (08:00 - 20:00).
-2.  **Job 2 (Daily Email):** Ping `/api/cron-trigger?key=...&type=daily` at 08:00 AM.
-3.  **Job 3 (Weekly News):** Ping `/api/cron-trigger?key=...&type=news` every Monday at 09:00 AM.
