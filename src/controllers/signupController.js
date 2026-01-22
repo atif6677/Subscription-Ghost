@@ -3,8 +3,7 @@ const bcrypt = require("bcrypt");
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
 
-const saltRounds = 10; 
-
+const saltRounds = parseInt(process.env.SALT_ROUNDS); 
 
 exports.addUserSignup = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -17,12 +16,12 @@ exports.addUserSignup = asyncHandler(async (req, res) => {
         throw new AppError("Password must be at least 6 characters long", 400);
     }
     
-    // ... existing code (check user exists, hash password, etc.)
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         throw new AppError("User already exists", 409);
     }
 
+    
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const user = new User({ 

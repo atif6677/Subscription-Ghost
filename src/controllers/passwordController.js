@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
-const { sendEmail } = require('../services/emailService');
+const { sendEmail } = require('../services/emailService'); 
+const saltRounds = parseInt(process.env.SALT_ROUNDS);
 
 exports.forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -19,14 +20,12 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     });
     await request.save();
 
-    // Generate Dynamic URL
     const protocol = req.protocol;
     const host = req.get('host');
     const resetURL = `${protocol}://${host}/password/resetpassword/${id}`;
     
     console.log("🔑 Generated Reset Link:", resetURL);
 
-    // ✅ USE SERVICE LAYER (Clean & Reusable)
     await sendEmail({
         toEmail: user.email,
         toName: user.name,
@@ -48,10 +47,9 @@ exports.getResetPasswordForm = asyncHandler(async (req, res) => {
     const request = await ForgotPasswordRequest.findById(id);
 
     if (!request || !request.isActive) {
-        throw new AppError('Invalid or expired reset link', 400);
+        return res.send(`<script>alert('Invalid or expired link'); window.location.href='/login.html';</script>`);
     }
 
-    // Simple Server-Side Rendered Form
     res.send(`
         <html>
             <head>
@@ -67,7 +65,7 @@ exports.getResetPasswordForm = asyncHandler(async (req, res) => {
             <body>
                 <form action="/password/resetpassword/${id}" method="POST">
                     <h3>Reset Your Password</h3>
-                    <input type="password" name="newPassword" placeholder="Enter new password" required />
+                    <input type="password" name="newPassword" placeholder="Enter new password" required minlength="6" />
                     <button type="submit">Update Password</button>
                 </form>
             </body>
@@ -80,21 +78,37 @@ exports.postResetPassword = asyncHandler(async (req, res) => {
     const { newPassword } = req.body;
 
     if (!newPassword || newPassword.length < 6) {
-        throw new AppError("Password must be at least 6 characters long", 400);
+        // Send alert if password is too short
+        return res.send(`
+            <script>
+                alert('Password must be at least 6 characters long');
+                window.history.back(); 
+            </script>
+        `);
     }
 
     const request = await ForgotPasswordRequest.findById(id);
-    if (!request || !request.isActive) throw new AppError('Invalid or expired reset link', 400);
+    if (!request || !request.isActive) {
+        return res.send(`<script>alert('Invalid or expired reset link'); window.location.href='/login.html';</script>`);
+    }
 
     const user = await User.findById(request.userId);
-    if (!user) throw new AppError('User not found for this reset link', 404);
+    if (!user) {
+        return res.send(`<script>alert('User not found'); window.location.href='/login.html';</script>`);
+    }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+  
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
     user.password = hashedPassword;
     await user.save();
 
     request.isActive = false;
     await request.save();
 
-    res.send('Password updated successfully! You can now <a href="/login.html">Login here</a>.');
+    res.send(`
+        <div style="text-align:center; padding-top:50px; font-family:sans-serif;">
+            <h2 style="color:green;">Password Updated!</h2>
+            <p>You can now <a href="/login.html">Login here</a>.</p>
+        </div>
+    `);
 });
