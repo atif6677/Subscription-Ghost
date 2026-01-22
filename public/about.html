@@ -25,38 +25,38 @@
 
     <div class="main-content">
         <div class="about-hero">
-            <div class="hero-icon">👻</div>
             <h1>Subscription Ghost</h1>
-            <p class="hero-subtitle">Take back control of your digital financial footprint.</p>
+            <p class="hero-subtitle">The smartest way to track, manage, and optimize your recurring expenses.</p>
         </div>
 
         <div class="card about-card">
-            <h2>Why We Built This</h2>
-            <p>Subscription fatigue is real. Companies rely on you forgetting to cancel free trials or ignoring small monthly price hikes. <strong>Subscription Ghost</strong> is your personal financial firewall.</p>
+            <h2>Our Mission</h2>
+            <p>We believe you shouldn't have to pay for services you don't use. <strong>Subscription Ghost</strong> gives you a clear, centralized view of your financial commitments, helping you cut the clutter and keep more of your hard-earned money.</p>
         </div>
 
-        <h2 class="section-title">Core Superpowers</h2>
+        <h2 class="section-title">Key Features</h2>
         <div class="features-grid">
             <div class="feature-box">
-                <div class="f-icon">🤖</div>
-                <h3>AI Powered</h3>
-                <p>Google Gemini AI automatically fetches real-time pricing and trial durations.</p>
+                <div class="f-icon">⚡</div>
+                <h3>Instant Discovery</h3>
+                <p>Simply type a service name, and our AI instantly finds the correct pricing and trial details for you.</p>
             </div>
             <div class="feature-box">
-                <div class="f-icon">🔔</div>
-                <h3>Smart Alerts</h3>
-                <p>Get notified via email 3 days before any trial ends.</p>
+                <div class="f-icon">🛡️</div>
+                <h3>Trial Protection</h3>
+                <p>We monitor your free trials and alert you 3 days before you get charged, giving you time to cancel.</p>
             </div>
             <div class="feature-box">
-                <div class="f-icon">📊</div>
-                <h3>Deep Analytics</h3>
-                <p>Visualize spending habits with interactive charts.</p>
+                <div class="f-icon">📈</div>
+                <h3>Expense Clarity</h3>
+                <p>See exactly how much you spend monthly and identify which subscriptions are eating up your budget.</p>
             </div>
         </div>
     </div>
     
+    <script src="JS/about.js"></script>
     <script>
-        // Simple Inline Script for About Page is fine
+        // Fallback script if JS/about.js isn't loaded
         const user = JSON.parse(localStorage.getItem('user'));
         if(user) document.getElementById('headerUserName').innerText = user.name;
         document.querySelector('.btn-logout').addEventListener('click', () => {

@@ -1,3 +1,5 @@
+// public/JS/bills.js
+
 // Auth Check
 const userStr = localStorage.getItem('user');
 const token = localStorage.getItem('token');
@@ -23,46 +25,48 @@ let myChart = null;
 
 function loadBills() {
     axios.get(`/subscriptions/${currentUserId}`).then(res => {
-        const activeSubs = res.data.filter(s => s.isActive !== false);
+        const allSubs = res.data.filter(s => s.isActive !== false);
         
-        // 1. Calculate Total
-        const total = activeSubs.reduce((acc, sub) => acc + (sub.price || 0), 0);
+        // 1. Filter: Only count services that are "Paying" (No active trial)
+        const payingSubs = allSubs.filter(sub => {
+            const today = new Date();
+            const renewalDate = new Date(sub.nextBillingDate);
+            const diffTime = renewalDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // If it has trial days AND the date hasn't passed, it's a Free Trial
+            const isTrialActive = (sub.trialDays > 0 && diffDays > 0);
+            
+            // We only want Paying services (Trial ended OR No trial ever)
+            return !isTrialActive; 
+        });
+
+        // 2. Calculate Total Monthly Bill
+        const total = payingSubs.reduce((acc, sub) => acc + (sub.price || 0), 0);
         document.getElementById('totalCost').innerText = `${total} INR`;
 
-        // 2. Render List
+        // 3. Render List (Only Paying Services)
         const paidList = document.getElementById('paid-list');
-        paidList.innerHTML = activeSubs.map(s => `
-            <div class="sub-item">
-                <span style="font-weight:600">${s.name}</span>
-                <b style="color:#1a1a1a">${s.price} INR</b>
-            </div>
-        `).join('');
-
-        // 3. Calculate History
-        const historyData = [];
-        const labels = [];
-        const today = new Date();
-
-        for (let i = 2; i >= 0; i--) {
-            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            labels.push(d.toLocaleString('default', { month: 'short' }));
-
-            const monthTotal = activeSubs.reduce((sum, sub) => {
-                const start = new Date(sub.startDate);
-                return (start <= new Date(d.getFullYear(), d.getMonth() + 1, 0)) 
-                    ? sum + (sub.price || 0) : sum;
-            }, 0);
-            historyData.push(monthTotal);
+        if(payingSubs.length === 0) {
+            paidList.innerHTML = '<p style="color:#666; font-size:14px;">No active paid subscriptions.</p>';
+        } else {
+            paidList.innerHTML = payingSubs.map(s => `
+                <div class="sub-item">
+                    <span style="font-weight:600">${s.name}</span>
+                    <b style="color:#1a1a1a">${s.price} INR</b>
+                </div>
+            `).join('');
         }
 
-        renderChart(labels, historyData);
+        // 4. Prepare Chart Data (Breakdown by Service)
+        const labels = payingSubs.map(s => s.name);
+        const data = payingSubs.map(s => s.price);
         
-        document.getElementById('history-list').innerHTML = labels.map((label, idx) => `
-            <div class="history-row">
-                <span>${label}</span>
-                <b>${historyData[idx]} INR</b>
-            </div>
-        `).join('');
+        // Render the Circle (Doughnut) Map
+        renderChart(labels, data);
+        
+        // 5. Render History Text (Right Side - Unchanged logic)
+        renderHistoryList(payingSubs);
     });
 }
 
@@ -72,26 +76,75 @@ function renderChart(labels, data) {
 
     if(myChart) myChart.destroy();
 
+    // If no data, show empty state or just don't render
+    if(data.length === 0) return;
+
     myChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'doughnut', // ✅ Circle Map
         data: {
             labels: labels,
             datasets: [{
-                label: 'Spending',
                 data: data,
-                backgroundColor: '#1a1a1a',
-                borderRadius: 4,
-                barThickness: 20
+                backgroundColor: [
+                    '#1a1a1a', // Black
+                    '#404040', // Dark Gray
+                    '#737373', // Medium Gray
+                    '#a3a3a3', // Light Gray
+                    '#d4d4d4', // Lighter
+                    '#e5e5e5'  // Very Light
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true, grid: { display: false } },
-                x: { grid: { display: false } }
-            },
-            plugins: { legend: { display: false } }
+            cutout: '70%', // Makes it a thinner ring
+            plugins: {
+                legend: { 
+                    display: false // Hide labels on chart to keep it clean
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.label}: ${context.raw} INR`;
+                        }
+                    }
+                }
+            }
         }
     });
+}
+
+// Helper for the Right Side History List
+function renderHistoryList(payingSubs) {
+    const historyListDiv = document.getElementById('history-list');
+    const today = new Date();
+    const historyHtml = [];
+
+    // Simple history logic: Last 3 months totals
+    for (let i = 2; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const monthName = d.toLocaleString('default', { month: 'short' });
+
+        // Calculate what the bill WAS for that month based on start dates
+        const monthTotal = payingSubs.reduce((sum, sub) => {
+            const start = new Date(sub.startDate);
+            // If subscription existed in that month
+            if (start <= new Date(d.getFullYear(), d.getMonth() + 1, 0)) {
+                return sum + (sub.price || 0);
+            }
+            return sum;
+        }, 0);
+
+        historyHtml.push(`
+            <div class="history-row">
+                <span>${monthName}</span>
+                <b>${monthTotal} INR</b>
+            </div>
+        `);
+    }
+    
+    if(historyListDiv) historyListDiv.innerHTML = historyHtml.join('');
 }

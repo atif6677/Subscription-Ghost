@@ -2,13 +2,12 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Using stable model alias
 const MODEL_NAME = "gemini-flash-latest"; 
 
 const fetchSubscriptionDetails = async (serviceName) => {
+  
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    
     const prompt = `
       You are a pricing expert for Indian SaaS services. 
       Task: Identify the correct official name (fix typos) and find the current "Standard Individual Monthly Subscription Price" (in INR) and "Free Trial Duration" (in days) for the service: "${serviceName}" in India.
@@ -29,7 +28,6 @@ const fetchSubscriptionDetails = async (serviceName) => {
     return JSON.parse(cleanText);
   } catch (error) {
     console.error("AI Price Error:", error);
-    // Fallback: return original name if AI fails
     return { name: serviceName, price: 0, trialDays: 0 };
   }
 };
@@ -38,8 +36,9 @@ const fetchMarketNews = async () => {
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     
+    
     const prompt = `
-      Generate 3 important subscription news updates for India (Netflix, Spotify, YouTube, etc).
+      Generate 5 important subscription news updates for India (Netflix, Spotify, YouTube, Amazon Prime, etc).
       
       OUTPUT FORMAT RULES:
       1. Return raw HTML only.
@@ -51,7 +50,7 @@ const fetchMarketNews = async () => {
             <div class="news-body">Short description here (max 2 sentences).</div>
          </div>
       
-      5. No introductory text. Just the 3 divs.
+      5. No introductory text. Just the 5 divs.
     `;
     
     const result = await model.generateContent(prompt);

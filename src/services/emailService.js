@@ -1,5 +1,4 @@
 const brevo = require('@getbrevo/brevo');
-require('dotenv').config();
 
 // 1. Initialize Brevo Client (Once for the whole app)
 const apiInstance = new brevo.TransactionalEmailsApi();
