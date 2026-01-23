@@ -10,14 +10,16 @@ const { initJobs } = require('./jobs/index');
 
 const app = express();
 
+// This tells Express to trust the proxy (Render) so rateLimit works correctly
+app.set('trust proxy', 1);
+
 app.use(helmet({
   contentSecurityPolicy: false, 
 }));
 
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  max: 200, 
   message: "Too many requests from this IP, please try again after 15 minutes"
 });
 app.use(limiter);
@@ -28,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public")));
 
-//  Routes
+// Routes
 app.use("/", require("./routes/signupRoute"));
 app.use("/", require("./routes/loginRoute"));
 app.use("/password", require("./routes/passwordRoute"));
