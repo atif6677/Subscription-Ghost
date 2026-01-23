@@ -33,6 +33,7 @@ async function loadSubscriptions() {
     
     try {
         const res = await axios.get(`/subscriptions/${currentUserId}`); 
+        // We only get active subscriptions here
         const subs = res.data.filter(sub => sub.isActive !== false);
 
         fullListDiv.innerHTML = '';
@@ -46,23 +47,34 @@ async function loadSubscriptions() {
             item.className = 'sub-item';
 
             let statusBadge = '';
+            
+            
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const renewalDate = new Date(sub.nextBillingDate);
+            renewalDate.setHours(0, 0, 0, 0);
+
             const diffTime = renewalDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-            if (sub.trialDays > 0 && diffDays > 0) {
+                        if (sub.trialDays > 0 && diffDays > 0) {
                  statusBadge = `<span class="badge badge-trial">Trial: ${diffDays} days left</span>`;
-            } else if (diffDays < 0) {
-                 statusBadge = `<span class="badge badge-expired">Expired</span>`;
+            } else if (sub.trialDays > 0 && diffDays <= 0) {
+                 
+                 statusBadge = `<span class="badge badge-active">Active</span>`;
             } else {
+                 
                  statusBadge = `<span class="badge badge-active">Active</span>`;
             }
+
+           
+            const dateColor = diffDays < 0 ? 'color: red;' : '';
 
             item.innerHTML = `
                 <div class="sub-left">
                     <h3>${sub.name}</h3>
-                    <div class="sub-meta">Cost: <b>${sub.price} INR</b> | Renewal: ${renewalDate.toLocaleDateString()}</div>
+                    <div class="sub-meta">Cost: <b>${sub.price} INR</b> | Renewal: <span style="${dateColor}">${renewalDate.toLocaleDateString()}</span></div>
                 </div>
                 <div class="sub-right">
                     ${statusBadge}
