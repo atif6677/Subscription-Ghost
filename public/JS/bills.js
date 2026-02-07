@@ -1,6 +1,6 @@
 // public/JS/bills.js
 
-// Auth Check
+// 1. Auth Check & Setup
 const userStr = localStorage.getItem('user');
 const token = localStorage.getItem('token');
 if (!token || !userStr) window.location.href = '/login.html';
@@ -12,12 +12,12 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('headerUserName').innerText = user.name;
     
-    // Logout Logic
     document.querySelector('.btn-logout').addEventListener('click', () => {
         localStorage.clear();
         window.location.href = '/login.html';
     });
 
+    // Load Data
     loadBills();
 });
 
@@ -25,6 +25,7 @@ let myChart = null;
 
 function loadBills() {
     axios.get(`/subscriptions/${currentUserId}`).then(res => {
+        // Get all active subscriptions (exclude archived ones)
         const allSubs = res.data.filter(s => s.isActive !== false);
         
         // 1. Filter: Only count services that are "Paying" (No active trial)
@@ -47,13 +48,23 @@ function loadBills() {
 
         // 3. Render List (Only Paying Services)
         const paidList = document.getElementById('paid-list');
-        if(payingSubs.length === 0) {
+        
+        if (payingSubs.length === 0) {
             paidList.innerHTML = '<p style="color:#666; font-size:14px;">No active paid subscriptions.</p>';
         } else {
             paidList.innerHTML = payingSubs.map(s => `
-                <div class="sub-item">
-                    <span style="font-weight:600">${s.name}</span>
-                    <b style="color:#1a1a1a">${s.price} INR</b>
+                <div class="sub-item" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="sub-left">
+                        <span style="font-weight:600; font-size: 16px;">${s.name}</span>
+                        <b style="color:#1a1a1a; margin-left: 10px;">${s.price} INR</b>
+                    </div>
+                    
+                    ${s.serviceLink ? 
+                        `<a href="${s.serviceLink}" target="_blank" class="btn-visit">
+                            Visit Service
+                        </a>` 
+                        : ''
+                    }
                 </div>
             `).join('');
         }
@@ -65,8 +76,10 @@ function loadBills() {
         // Render the Circle (Doughnut) Map
         renderChart(labels, data);
         
-        // 5. Render History Text (Right Side - Unchanged logic)
+        // 5. Render History Text (Right Side)
         renderHistoryList(payingSubs);
+    }).catch(err => {
+        console.error("Error loading bills:", err);
     });
 }
 
@@ -74,13 +87,13 @@ function renderChart(labels, data) {
     const ctx = document.getElementById('spendChart')?.getContext('2d');
     if (!ctx) return;
 
-    if(myChart) myChart.destroy();
+    if (myChart) myChart.destroy();
 
-    // If no data, show empty state or just don't render
-    if(data.length === 0) return;
+    // If no data, do not render chart to avoid errors
+    if (data.length === 0) return;
 
     myChart = new Chart(ctx, {
-        type: 'doughnut', // ✅ Circle Map
+        type: 'doughnut', // Circle Map
         data: {
             labels: labels,
             datasets: [{
@@ -146,5 +159,5 @@ function renderHistoryList(payingSubs) {
         `);
     }
     
-    if(historyListDiv) historyListDiv.innerHTML = historyHtml.join('');
+    if (historyListDiv) historyListDiv.innerHTML = historyHtml.join('');
 }

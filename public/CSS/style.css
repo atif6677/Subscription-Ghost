@@ -132,3 +132,34 @@ body {
 input { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
 .primary-btn { padding: 0 25px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; }
 .btn-delete { background: transparent; border: none; color: #d63031; font-size: 12px; cursor: pointer; }
+
+
+/* Visit Button Style */
+.btn-visit {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 13px;
+    color: #007bff; /* Blue */
+    font-weight: 600;
+    border: 1px solid #007bff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    margin-right: 10px;
+    background-color: transparent;
+    cursor: pointer; /* Ensure it looks clickable */
+}
+
+.btn-visit:hover {
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+/* NEW: Container for Visit and Remove buttons */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between buttons */
+    margin-top: 5px;
+}

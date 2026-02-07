@@ -27,8 +27,10 @@ exports.previewSubscription = asyncHandler(async (req, res) => {
 });
 
 // --- ADD SUBSCRIPTION ---
+
 exports.createSubscription = asyncHandler(async (req, res) => {
-    const { userId, serviceName, startDate, price, trialDays } = req.body;
+    
+    const { userId, serviceName, startDate, price, trialDays, serviceLink } = req.body;
 
     if (!userId) {
         throw new AppError('User ID is missing. Please re-login.', 400);
@@ -46,11 +48,12 @@ exports.createSubscription = asyncHandler(async (req, res) => {
 
     const newSub = await Subscription.create({
       user: userId,
-      name: serviceName,
-      price, 
+      name: serviceName, 
+      price,             
       trialDays: trialDays || 0, 
       startDate,
       nextBillingDate: billingDate,
+      serviceLink,       
       isActive: true 
     });
     
@@ -67,7 +70,6 @@ exports.getUserSubscriptions = asyncHandler(async (req, res) => {
         throw new AppError('Unauthorized: User ID mismatch.', 401);
     }
     
-    // FIX: Return ALL subscriptions (even inactive) so history works.
     // Frontend will filter them.
     const subs = await Subscription.find({ user: req.params.userId }).sort({ createdAt: -1 });
     res.json(subs);
@@ -83,7 +85,7 @@ exports.deleteSubscription = asyncHandler(async (req, res) => {
         throw new AppError('Not authorized to delete this subscription', 401);
     }
     
-    // FIX: Soft Delete (Mark inactive instead of removing)
+    // Soft Delete (Mark inactive instead of removing)
     sub.isActive = false;
     await sub.save();
 

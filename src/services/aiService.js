@@ -2,21 +2,24 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+
 const MODEL_NAME = "gemini-flash-latest"; 
 
 const fetchSubscriptionDetails = async (serviceName) => {
-  
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    
+    
     const prompt = `
       You are a pricing expert for Indian SaaS services. 
-      Task: Identify the correct official name (fix typos) and find the current "Standard Individual Monthly Subscription Price" (in INR) and "Free Trial Duration" (in days) for the service: "${serviceName}" in India.
+      Task: Identify the correct official name (fix typos) and find the current "Standard Individual Monthly Subscription Price" (in INR), "Free Trial Duration" (in days), and the official website URL for the service: "${serviceName}" in India.
       
       CRITICAL RULES:
       1. Correct the name (e.g. "netflx" -> "Netflix", "hotstar" -> "Disney+ Hotstar").
       2. If NO free trial (Netflix, Hotstar), return 0.
-      3. Price: Monthly individual plan.
-      4. Output JSON only: {"name": "Corrected Name", "price": Number, "trialDays": Number}
+      3. Price: Monthly individual plan in INR.
+      4. serviceLink: Provide the official landing page URL for India.
+      5. Output JSON only: {"name": "Corrected Name", "price": Number, "trialDays": Number, "serviceLink": "URL"}
     `;
 
     const result = await model.generateContent(prompt);
@@ -28,14 +31,14 @@ const fetchSubscriptionDetails = async (serviceName) => {
     return JSON.parse(cleanText);
   } catch (error) {
     console.error("AI Price Error:", error);
-    return { name: serviceName, price: 0, trialDays: 0 };
+    // Return default with empty link on error
+    return { name: serviceName, price: 0, trialDays: 0, serviceLink: "" };
   }
 };
 
 const fetchMarketNews = async () => {
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    
     
     const prompt = `
       Generate 5 important subscription news updates for India (Netflix, Spotify, YouTube, Amazon Prime, etc).

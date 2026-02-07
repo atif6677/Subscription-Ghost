@@ -4,7 +4,8 @@ A smart financial firewall that helps users track their SaaS subscriptions (Netf
 
 ## 🚀 Key Features
 
-* **🤖 AI-Powered Discovery:** Uses **Google Gemini AI** to automatically fetch real-time pricing and trial durations for any service.
+* **🤖 AI-Powered Discovery:** Uses **Google Gemini AI** to automatically fetch real-time pricing, trial durations, and **official website links** for any service.
+* **🔗 One-Click Access:** Direct "Visit Service" links added to your dashboard and bills page for quick access to manage accounts.
 * **⏰ Smart Trial Protection:** Sends email alerts (via **Brevo**) 3 days before a free trial converts to a paid plan.
 * **📊 Deep Analytics:** Dedicated **Bills Page** with a doughnut chart breakdown of expenses and monthly spending history.
 * **📰 Market Watch:** AI-curated weekly news digest of the latest subscription price hikes and deals.

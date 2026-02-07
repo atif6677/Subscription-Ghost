@@ -10,11 +10,8 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('headerUserName').innerText = user.name;
-
-    // Load Data
     loadSubscriptions();
 
-    // Event Listeners
     document.querySelector('.btn-logout').addEventListener('click', () => {
         localStorage.clear();
         window.location.href = '/login.html';
@@ -33,7 +30,6 @@ async function loadSubscriptions() {
     
     try {
         const res = await axios.get(`/subscriptions/${currentUserId}`); 
-        // We only get active subscriptions here
         const subs = res.data.filter(sub => sub.isActive !== false);
 
         fullListDiv.innerHTML = '';
@@ -46,50 +42,39 @@ async function loadSubscriptions() {
             const item = document.createElement('div');
             item.className = 'sub-item';
 
-            let statusBadge = '';
-            
-            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
             const renewalDate = new Date(sub.nextBillingDate);
             renewalDate.setHours(0, 0, 0, 0);
 
             const diffTime = renewalDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-                        if (sub.trialDays > 0 && diffDays > 0) {
+            let statusBadge = '';
+            if (sub.trialDays > 0 && diffDays > 0) {
                  statusBadge = `<span class="badge badge-trial">Trial: ${diffDays} days left</span>`;
-            } else if (sub.trialDays > 0 && diffDays <= 0) {
-                 
-                 statusBadge = `<span class="badge badge-active">Active</span>`;
             } else {
-                 
                  statusBadge = `<span class="badge badge-active">Active</span>`;
             }
 
-           
-            const dateColor = diffDays < 0 ? 'color: red;' : '';
-
-            item.innerHTML = `
+           item.innerHTML = `
                 <div class="sub-left">
                     <h3>${sub.name}</h3>
-                    <div class="sub-meta">Cost: <b>${sub.price} INR</b> | Renewal: <span style="${dateColor}">${renewalDate.toLocaleDateString()}</span></div>
+                    <div class="sub-meta">Cost: <b>${sub.price} INR</b> | Renewal: <span>${renewalDate.toLocaleDateString()}</span></div>
                 </div>
-                <div class="sub-right">
+                <div class="sub-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                     ${statusBadge}
-                    <button onclick="deleteSub('${sub._id}')" class="btn-delete">Remove</button>
+                    <div class="action-buttons">
+                        ${sub.serviceLink ? `<a href="${sub.serviceLink}" target="_blank" class="btn-visit">Visit</a>` : ''}
+                        <button onclick="deleteSub('${sub._id}')" class="btn-delete">Remove</button>
+                    </div>
                 </div>
             `;
+            
             fullListDiv.appendChild(item);
         });
-
     } catch (err) {
         console.error(err);
-        if(err.response?.status === 401) {
-            localStorage.clear();
-            window.location.href = '/login.html';
-        }
     }
 }
 
@@ -98,22 +83,23 @@ async function handleSearch() {
     const statusP = document.getElementById('status');
     if(!query) return;
 
-    statusP.innerText = "🤖 AI is searching pricing...";
+    statusP.innerText = "🤖 AI is searching pricing and links...";
     
     try {
         const res = await axios.post('/subscriptions/preview', { serviceName: query });
         const data = res.data.data;
 
+    
         document.getElementById('modalName').value = data.name;
         document.getElementById('modalPrice').value = data.price;
         document.getElementById('modalTrial').value = data.trialDays;
+        document.getElementById('modalLink').value = data.serviceLink || ""; 
         document.getElementById('modalDate').valueAsDate = new Date(); 
 
         document.getElementById('confirmModal').style.display = 'flex';
         statusP.innerText = "";
         
     } catch (err) {
-        console.error(err);
         statusP.innerText = "Error fetching details.";
     }
 }
@@ -122,6 +108,7 @@ async function saveSubscription() {
     const name = document.getElementById('modalName').value;
     const price = document.getElementById('modalPrice').value;
     const trial = document.getElementById('modalTrial').value;
+    const link = document.getElementById('modalLink').value;
     const date = document.getElementById('modalDate').value;
 
     try {
@@ -130,6 +117,7 @@ async function saveSubscription() {
             serviceName: name,
             price: price,
             trialDays: trial,
+            serviceLink: link,
             startDate: date
         });
 
@@ -147,11 +135,11 @@ function closeModal() {
 }
 
 window.deleteSub = async function(id) {
-    if(!confirm('Are you sure you want to remove this?')) return;
+    if(!confirm('Are you sure?')) return;
     try {
         await axios.delete(`/subscriptions/${id}`);
         loadSubscriptions();
     } catch(err) {
-        alert('Error removing subscription');
+        alert('Error removing');
     }
 };
