@@ -9,6 +9,7 @@ const subscriptionSchema = new mongoose.Schema({
   trialDays: { type: Number, default: 0 },
   nextBillingDate: { type: Date, required: true },
   serviceLink: { type: String },
+  category: { type: String, default: 'Other' },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });

@@ -163,3 +163,10 @@ input { flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px;
     gap: 10px; /* Space between buttons */
     margin-top: 5px;
 }
+
+/* Category text style */
+.sub-category {
+    font-size: 12px;
+    color: gray;
+    font-weight: normal;
+}

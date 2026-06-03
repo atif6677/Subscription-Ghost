@@ -27,10 +27,9 @@ exports.previewSubscription = asyncHandler(async (req, res) => {
 });
 
 // --- ADD SUBSCRIPTION ---
-
 exports.createSubscription = asyncHandler(async (req, res) => {
-    
-    const { userId, serviceName, startDate, price, trialDays, serviceLink } = req.body;
+
+    const { userId, serviceName, startDate, price, trialDays, serviceLink, category } = req.body;
 
     if (!userId) {
         throw new AppError('User ID is missing. Please re-login.', 400);
@@ -53,7 +52,8 @@ exports.createSubscription = asyncHandler(async (req, res) => {
       trialDays: trialDays || 0, 
       startDate,
       nextBillingDate: billingDate,
-      serviceLink,       
+      serviceLink,
+      category: category || 'Other',
       isActive: true 
     });
     

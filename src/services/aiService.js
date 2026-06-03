@@ -9,17 +9,17 @@ const fetchSubscriptionDetails = async (serviceName) => {
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     
-    
     const prompt = `
       You are a pricing expert for Indian SaaS services. 
       Task: Identify the correct official name (fix typos) and find the current "Standard Individual Monthly Subscription Price" (in INR), "Free Trial Duration" (in days), and the official website URL for the service: "${serviceName}" in India.
       
       CRITICAL RULES:
-      1. Correct the name (e.g. "netflx" -> "Netflix", "hotstar" -> "Disney+ Hotstar").
-      2. If NO free trial (Netflix, Hotstar), return 0.
+      1. Correct the name (e.g. "netflx" -> "Netflix").
+      2. If NO free trial, return 0.
       3. Price: Monthly individual plan in INR.
       4. serviceLink: Provide the official landing page URL for India.
-      5. Output JSON only: {"name": "Corrected Name", "price": Number, "trialDays": Number, "serviceLink": "URL"}
+      5. category: Choose one from ["Entertainment", "Productivity", "Shopping", "Utility", "Other"].
+      6. Output JSON only: {"name": "Corrected Name", "price": Number, "trialDays": Number, "serviceLink": "URL", "category": "String"}
     `;
 
     const result = await model.generateContent(prompt);
@@ -31,8 +31,7 @@ const fetchSubscriptionDetails = async (serviceName) => {
     return JSON.parse(cleanText);
   } catch (error) {
     console.error("AI Price Error:", error);
-    // Return default with empty link on error
-    return { name: serviceName, price: 0, trialDays: 0, serviceLink: "" };
+    return { name: serviceName, price: 0, trialDays: 0, serviceLink: "", category: "Other" };
   }
 };
 

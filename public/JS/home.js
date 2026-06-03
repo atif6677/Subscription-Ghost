@@ -59,7 +59,7 @@ async function loadSubscriptions() {
 
            item.innerHTML = `
                 <div class="sub-left">
-                    <h3>${sub.name}</h3>
+                    <h3>${sub.name} <span class="sub-category">(${sub.category || 'Other'})</span></h3>
                     <div class="sub-meta">Cost: <b>${sub.price} INR</b> | Renewal: <span>${renewalDate.toLocaleDateString()}</span></div>
                 </div>
                 <div class="sub-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
@@ -83,14 +83,14 @@ async function handleSearch() {
     const statusP = document.getElementById('status');
     if(!query) return;
 
-    statusP.innerText = "🤖 AI is searching pricing and links...";
+    statusP.innerText = "AI is searching pricing and links...";
     
     try {
         const res = await axios.post('/subscriptions/preview', { serviceName: query });
         const data = res.data.data;
 
-    
         document.getElementById('modalName').value = data.name;
+        document.getElementById('modalCategory').value = data.category || "Other";
         document.getElementById('modalPrice').value = data.price;
         document.getElementById('modalTrial').value = data.trialDays;
         document.getElementById('modalLink').value = data.serviceLink || ""; 
@@ -106,6 +106,7 @@ async function handleSearch() {
 
 async function saveSubscription() {
     const name = document.getElementById('modalName').value;
+    const category = document.getElementById('modalCategory').value;
     const price = document.getElementById('modalPrice').value;
     const trial = document.getElementById('modalTrial').value;
     const link = document.getElementById('modalLink').value;
@@ -115,6 +116,7 @@ async function saveSubscription() {
         await axios.post('/subscriptions/add', {
             userId: currentUserId,
             serviceName: name,
+            category: category,
             price: price,
             trialDays: trial,
             serviceLink: link,
