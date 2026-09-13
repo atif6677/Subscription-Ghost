@@ -1,71 +1,136 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI, Type } = require("@google/genai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
+const MODEL_NAME = "gemini-3.5-flash-lite";
 
-const MODEL_NAME = "gemini-flash-latest"; 
-
-const fetchSubscriptionDetails = async (serviceName) => {
+exports.fetchSubscriptionDetails = async (serviceName) => {
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    
     const prompt = `
-      You are a pricing expert for Indian SaaS services. 
-      Task: Identify the correct official name (fix typos) and find the current "Standard Individual Monthly Subscription Price" (in INR), "Free Trial Duration" (in days), and the official website URL for the service: "${serviceName}" in India.
-      
-      CRITICAL RULES:
-      1. Correct the name (e.g. "netflx" -> "Netflix").
-      2. If NO free trial, return 0.
-      3. Price: Monthly individual plan in INR.
-      4. serviceLink: Provide the official landing page URL for India.
-      5. category: Choose one from ["Entertainment", "Productivity", "Shopping", "Utility", "Other"].
-      6. Output JSON only: {"name": "Corrected Name", "price": Number, "trialDays": Number, "serviceLink": "URL", "category": "String"}
-    `;
+You are a subscription assistant for India.
 
-    const result = await model.generateContent(prompt);
-    let cleanText = result.response.text()
-        .replace(/\`\`\`json/g, '')
-        .replace(/\`\`\`/g, '')
-        .trim();
-        
-    return JSON.parse(cleanText);
+Identify this subscription service:
+
+"${serviceName}"
+
+Return:
+1. Correct official name.
+2. Monthly individual subscription price in INR.
+3. Free trial duration in days.
+4. Official website URL.
+5. Category.
+
+Rules:
+- Fix spelling mistakes.
+- If there is no free trial, return 0.
+- Give the normal individual monthly price.
+- If you do not know the price, return 0.
+- Category must be one of:
+  Entertainment, Productivity, Shopping, Utility, Other.
+
+Return JSON only.
+`;
+
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+
+      config: {
+        responseMimeType: "application/json",
+
+        responseSchema: {
+          type: Type.OBJECT,
+
+          properties: {
+            name: {
+              type: Type.STRING,
+            },
+
+            price: {
+              type: Type.NUMBER,
+            },
+
+            trialDays: {
+              type: Type.NUMBER,
+            },
+
+            serviceLink: {
+              type: Type.STRING,
+            },
+
+            category: {
+              type: Type.STRING,
+              enum: [
+                "Entertainment",
+                "Productivity",
+                "Shopping",
+                "Utility",
+                "Other",
+              ],
+            },
+          },
+
+          required: [
+            "name",
+            "price",
+            "trialDays",
+            "serviceLink",
+            "category",
+          ],
+        },
+      },
+    });
+
+    return JSON.parse(response.text);
   } catch (error) {
     console.error("AI Price Error:", error);
-    return { name: serviceName, price: 0, trialDays: 0, serviceLink: "", category: "Other" };
+
+    return {
+      name: serviceName,
+      price: 0,
+      trialDays: 0,
+      serviceLink: "",
+      category: "Other",
+    };
   }
 };
 
-const fetchMarketNews = async () => {
+exports.fetchMarketNews = async () => {
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    
     const prompt = `
-      Generate 5 important subscription news updates for India (Netflix, Spotify, YouTube, Amazon Prime, etc).
-      
-      OUTPUT FORMAT RULES:
-      1. Return raw HTML only.
-      2. Do NOT use Markdown (no **, no ---, no #).
-      3. Do NOT use Emojis.
-      4. Structure exactly like this for each item:
-         <div class="news-item">
-            <div class="news-header">TITLE HERE</div>
-            <div class="news-body">Short description here (max 2 sentences).</div>
-         </div>
-      
-      5. No introductory text. Just the 5 divs.
-    `;
-    
-    const result = await model.generateContent(prompt);
-    let cleanText = result.response.text()
-        .replace(/\`\`\`html/g, '')
-        .replace(/\`\`\`/g, '')
-        .trim();
+Generate 5 subscription-related news updates for India.
 
-    return cleanText;
+Include services such as:
+Netflix, Spotify, YouTube, Amazon Prime, Microsoft 365, Adobe.
+
+Rules:
+- Return raw HTML only.
+- Do not use Markdown.
+- Do not use emojis.
+- Return exactly 5 items.
+
+Structure:
+
+<div class="news-item">
+  <div class="news-header">TITLE HERE</div>
+  <div class="news-body">Short description here.</div>
+</div>
+`;
+
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+    });
+
+    return response.text
+      .replace(/```html/g, "")
+      .replace(/```/g, "")
+      .trim();
   } catch (error) {
     console.error("AI News Error:", error);
+
     return "<p>News temporarily unavailable.</p>";
   }
 };
-
-module.exports = { fetchSubscriptionDetails, fetchMarketNews };
